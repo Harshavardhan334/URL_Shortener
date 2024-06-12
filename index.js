@@ -1,9 +1,14 @@
 const express=require('express');
+const cookieParser=require('cookie-parser')
 const urlRoute=require('./routes/url');
 const path=require('path');
 const {connectMongoDb}=require('./connect');
 const url=require('./model/url');
 const staticRoute=require('./routes/staticRouter');
+const userRoute=require('./routes/user');
+const {
+    restrictedToLoggedInUserOnly
+}=require('./middleware/auth');
 
 const app=express();
 const PORT=8000;
@@ -17,7 +22,11 @@ app.set('views', path.resolve('./views'));
 
 app.use(express.json());
 app.use(express.urlencoded({extended : false}));
-app.use('/url', urlRoute);
+app.use(cookieParser());
+
+
+app.use('/url',restrictedToLoggedInUserOnly ,urlRoute);
+app.use('/user', userRoute);
 app.use('/', staticRoute);
 
 
