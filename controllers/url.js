@@ -5,14 +5,15 @@ const url= require('../model/url');
 async function generateNewShortUrl(req,res){
     const body=req.body;
     if(!body.url){
-        return res.statue(400).json({error:'url is required'});
+        return res.status(400).json({error:'url is required'});
     }
     const shortId=shortid();
 
     await url.create({
         shortId : shortId,
         redirectUrl : body.url,
-        visitHistory: []
+        visitHistory: [],
+        createdBy: req.user._id
     });
 
     return res.render('home',{
@@ -29,7 +30,7 @@ async function getAnalytics(req,res){
 }
 
 async function getFullAnalytics(req,res){
-    const allUrls=await url.find({});
+    const allUrls=await url.find({createdBy:req.user._id});
     return res.render('analytics',{
         urls:allUrls
     })
